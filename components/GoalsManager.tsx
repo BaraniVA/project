@@ -257,30 +257,46 @@ export function GoalsManager() {
         </TouchableOpacity>
       </View>
 
-      {/* Wallet Balance Display */}
-      <View style={styles.walletCard}>
-        <View style={styles.walletHeader}>
-          <Wallet size={20} color={colors.success} />
-          <Text style={styles.walletTitle}>Available to Allocate</Text>
-        </View>
-        <Text style={styles.walletAmount}>
-          {formatCurrency(walletData.money_saved)}
-        </Text>
-        <Text style={styles.walletSubtext}>
-          From your attention savings
-        </Text>
-      </View>
-
       {goals.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Target size={48} color={colors.textSecondary} />
-          <Text style={styles.emptyTitle}>No Goals Yet</Text>
-          <Text style={styles.emptyText}>
-            Set a financial goal and see how reducing screen time can help you achieve it faster
-          </Text>
-        </View>
+        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+          {/* Wallet Balance Display */}
+          <View style={styles.walletCard}>
+            <View style={styles.walletHeader}>
+              <Wallet size={20} color={colors.success} />
+              <Text style={styles.walletTitle}>Available to Allocate</Text>
+            </View>
+            <Text style={styles.walletAmount}>
+              {formatCurrency(walletData.money_saved)}
+            </Text>
+            <Text style={styles.walletSubtext}>
+              From your attention savings
+            </Text>
+          </View>
+
+          <View style={styles.emptyState}>
+            <Target size={48} color={colors.textSecondary} />
+            <Text style={styles.emptyTitle}>No Goals Yet</Text>
+            <Text style={styles.emptyText}>
+              Set a financial goal and see how reducing screen time can help you achieve it faster
+            </Text>
+          </View>
+        </ScrollView>
       ) : (
-        <ScrollView style={styles.goalsList} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+          {/* Wallet Balance Display */}
+          <View style={styles.walletCard}>
+            <View style={styles.walletHeader}>
+              <Wallet size={20} color={colors.success} />
+              <Text style={styles.walletTitle}>Available to Allocate</Text>
+            </View>
+            <Text style={styles.walletAmount}>
+              {formatCurrency(walletData.money_saved)}
+            </Text>
+            <Text style={styles.walletSubtext}>
+              From your attention savings
+            </Text>
+          </View>
+
           {goals.map((goal) => (
             <View key={goal.id} style={styles.goalCard}>
               <View style={styles.goalHeader}>
@@ -476,6 +492,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollContainer: {
+    flex: 1,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -545,9 +564,6 @@ const createStyles = (colors: any) => StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
-  },
-  goalsList: {
-    flex: 1,
   },
   goalCard: {
     backgroundColor: colors.surface,

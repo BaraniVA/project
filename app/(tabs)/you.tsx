@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Share, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Share, Platform, Modal } from 'react-native';
 import { GradientBackground } from '@/components/GradientBackground';
 import { WalletOverview } from '@/components/WalletOverview';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
@@ -38,59 +38,68 @@ export default function YouScreen() {
   const [notifications, setNotifications] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
   const styles = createStyles(colors);
 
   const handleSignOut = async () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            await signOut();
-            router.replace('/onboarding');
-          },
-        },
-      ]
-    );
+    console.log('Sign out button pressed');
+    setShowSignOutModal(true);
+  };
+
+  const confirmSignOut = async () => {
+    console.log('User confirmed sign out');
+    setShowSignOutModal(false);
+    try {
+      console.log('Calling signOut function...');
+      
+      // Call Supabase signOut directly
+      const { error } = await supabase.auth.signOut();
+      console.log('Direct Supabase signOut result:', { error });
+      
+      if (error) {
+        console.error('SignOut error:', error);
+        Alert.alert('Error', `Failed to sign out: ${error.message}`);
+        return;
+      }
+      
+      console.log('SignOut successful, navigating...');
+      router.replace('/onboarding');
+      console.log('Navigation attempted');
+      
+    } catch (error) {
+      console.error('Sign out error:', error);
+      Alert.alert('Error', `Sign out failed: ${error}`);
+    }
   };
 
   const handleDeleteAccount = async () => {
-    Alert.alert(
-      'Delete Account',
-      'This action is permanent and cannot be undone. All your data including screen time entries, goals, focus activities, subscriptions, and wallet information will be permanently deleted.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete Forever',
-          style: 'destructive',
-          onPress: async () => {
-            // Second confirmation for extra safety
-            Alert.alert(
-              'Final Confirmation',
-              'Are you absolutely sure? This will permanently delete all your PayMind data and cannot be recovered.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Yes, Delete Everything',
-                  style: 'destructive',
-                  onPress: performAccountDeletion,
-                },
-              ]
-            );
-          },
-        },
-      ]
-    );
+    console.log('Delete account button pressed');
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteAccount = () => {
+    console.log('User confirmed delete account');
+    setShowDeleteModal(false);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmFinalDelete = () => {
+    console.log('User confirmed final delete');
+    setShowDeleteConfirmModal(false);
+    performAccountDeletion();
   };
 
   const performAccountDeletion = async () => {
-    if (!user) return;
+    console.log('performAccountDeletion called');
+    if (!user?.id) {
+      console.log('No user found, returning');
+      return;
+    }
 
+    console.log('Starting account deletion for user:', user.id);
     setDeleting(true);
     try {
       // Delete all user data from all tables
@@ -104,12 +113,31 @@ export default function YouScreen() {
       ];
 
       // Execute all deletions
-      await Promise.all(deletePromises);
+      const results = await Promise.allSettled(deletePromises);
+      console.log('Deletion results:', results);
+      
+      // Check if any deletions failed
+      const failures = results.filter(result => result.status === 'rejected');
+      if (failures.length > 0) {
+        console.error('Some data deletion failed:', failures);
+        Alert.alert(
+          'Partial Deletion',
+          'Some data could not be deleted. Please contact support for complete account removal.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
 
-      // Sign out the user
-      await signOut();
+      console.log('Data deletion successful, signing out...');
+      // Sign out the user using direct Supabase call
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        console.error('Sign out error during deletion:', signOutError);
+        Alert.alert('Warning', 'Account data deleted but sign out failed. Please restart the app.');
+      }
 
-      // Navigate to onboarding
+      console.log('Account deletion complete, navigating...');
+      // Navigate to onboarding screen
       router.replace('/onboarding');
 
       Alert.alert(
@@ -375,6 +403,100 @@ export default function YouScreen() {
 
         {activeTab === 'profile' ? renderProfileContent() : <WalletOverview showAchievements={true} />}
       </View>
+
+      {/* Sign Out Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showSignOutModal}
+        onRequestClose={() => setShowSignOutModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Sign Out</Text>
+            <Text style={styles.modalText}>Are you sure you want to sign out?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonCancel]} 
+                onPress={() => setShowSignOutModal(false)}
+              >
+                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonConfirm]} 
+                onPress={confirmSignOut}
+              >
+                <Text style={styles.modalButtonTextConfirm}>Sign Out</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showDeleteModal}
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Delete Account</Text>
+            <Text style={styles.modalText}>
+              This action is permanent and cannot be undone. All your data including screen time entries, goals, focus activities, subscriptions, and wallet information will be permanently deleted.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonCancel]} 
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonConfirm]} 
+                onPress={confirmDeleteAccount}
+              >
+                <Text style={styles.modalButtonTextConfirm}>Delete Forever</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Final Delete Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showDeleteConfirmModal}
+        onRequestClose={() => setShowDeleteConfirmModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Final Confirmation</Text>
+            <Text style={styles.modalText}>
+              Are you absolutely sure? This will permanently delete all your PayMind data and cannot be recovered.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonCancel]} 
+                onPress={() => setShowDeleteConfirmModal(false)}
+              >
+                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonConfirm]} 
+                onPress={confirmFinalDelete}
+                disabled={deleting}
+              >
+                <Text style={styles.modalButtonTextConfirm}>
+                  {deleting ? 'Deleting...' : 'Yes, Delete Everything'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </GradientBackground>
   );
 }
@@ -568,5 +690,61 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
     fontStyle: 'italic',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    lineHeight: 22,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalButtonCancel: {
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.textSecondary,
+  },
+  modalButtonConfirm: {
+    backgroundColor: colors.error,
+  },
+  modalButtonTextCancel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  modalButtonTextConfirm: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
   },
 });

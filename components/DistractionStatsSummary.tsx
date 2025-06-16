@@ -109,28 +109,32 @@ export function DistractionStatsSummary() {
       <Text style={styles.title}>Distraction Debt</Text>
       
       <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Smartphone size={20} color={colors.error} />
-          <Text style={styles.statValue}>{weeklyStats.totalPickups}</Text>
-          <Text style={styles.statLabel}>Weekly Pickups</Text>
+        <View style={styles.gridRow}>
+          <View style={styles.statCard}>
+            <Smartphone size={20} color={colors.error} />
+            <Text style={styles.statValue}>{weeklyStats.totalPickups}</Text>
+            <Text style={styles.statLabel}>Weekly Pickups</Text>
+          </View>
+
+          <View style={styles.statCard}>
+            <Bell size={20} color={colors.warning} />
+            <Text style={styles.statValue}>{weeklyStats.totalNotifications}</Text>
+            <Text style={styles.statLabel}>Notifications</Text>
+          </View>
         </View>
 
-        <View style={styles.statCard}>
-          <Bell size={20} color={colors.warning} />
-          <Text style={styles.statValue}>{weeklyStats.totalNotifications}</Text>
-          <Text style={styles.statLabel}>Notifications</Text>
-        </View>
+        <View style={styles.gridRow}>
+          <View style={styles.statCard}>
+            <Zap size={20} color={colors.primary} />
+            <Text style={styles.statValue}>{formatCurrency(weeklyStats.totalDebt)}</Text>
+            <Text style={styles.statLabel}>Total Debt</Text>
+          </View>
 
-        <View style={styles.statCard}>
-          <Zap size={20} color={colors.primary} />
-          <Text style={styles.statValue}>{formatCurrency(weeklyStats.totalDebt)}</Text>
-          <Text style={styles.statLabel}>Total Debt</Text>
-        </View>
-
-        <View style={styles.statCard}>
-          <Award size={20} color={colors.success} />
-          <Text style={styles.statValue}>{currentStreak}</Text>
-          <Text style={styles.statLabel}>Focus Streak</Text>
+          <View style={styles.statCard}>
+            <Award size={20} color={colors.success} />
+            <Text style={styles.statValue}>{currentStreak}</Text>
+            <Text style={styles.statLabel}>Focus Streak</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -154,16 +158,19 @@ const createStyles = (colors: any) => StyleSheet.create({
     paddingVertical: 20,
   },
   statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
     gap: 12,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
   statCard: {
     backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
-    width: '48%',
+    flex: 1,
+    marginHorizontal: 6,
     alignItems: 'center',
   },
   statValue: {
