@@ -15,6 +15,7 @@ export default function OnboardingScreen() {
 
   return (
     <GradientBackground>
+      <BoltBadge position="fixed" />
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.title}>PayMind</Text>
@@ -55,7 +56,6 @@ export default function OnboardingScreen() {
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setShowFAQ(true)}>
             <Text style={styles.secondaryButtonText}>Quick FAQ</Text>
           </TouchableOpacity>
-          <BoltBadge/>
         </View>
 
         <Modal visible={showFAQ} animationType="slide" transparent>
