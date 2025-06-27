@@ -254,7 +254,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     marginBottom: 24,
-    minHeight: height * 0.5, // Ensure minimum height for better readability
+    minHeight: height * 0.65, // Increased height for better readability
   },
   lessonHeader: {
     flexDirection: 'row',
@@ -285,7 +285,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   lessonContentContainer: {
     flex: 1,
-    maxHeight: height * 0.3, // Limit height to allow scrolling within the lesson
+    maxHeight: height * 0.45, // Increased height to reduce internal scrolling
   },
   lessonContent: {
     fontSize: 16,

@@ -167,7 +167,7 @@ export default function TrackScreen() {
 
   return (
     <GradientBackground>
-      <View style={styles.container}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Plus size={32} color={colors.primary} />
           <Text style={styles.title}>Track & Input</Text>
@@ -208,10 +208,10 @@ export default function TrackScreen() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
           {renderTabContent()}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </GradientBackground>
   );
 }
