@@ -76,8 +76,8 @@ export default function ReclaimScreen() {
       // Generate switch recommendations for high-cost apps
       Object.entries(appUsage).forEach(([app, hours]) => {
         const profitWeight = APP_PROFIT_WEIGHTS[app as keyof typeof APP_PROFIT_WEIGHTS];
-        if (profitWeight && profitWeight > 1.5 && hours > 5) {
-          const currentCost = hours * 187.5 * profitWeight;
+        if (profitWeight && profitWeight > 1.5 && (hours as number) > 5) {
+          const currentCost = (hours as number) * 187.5 * profitWeight;
           const potentialSaving = currentCost * 0.6;
 
           recommendations.push({
@@ -97,12 +97,12 @@ export default function ReclaimScreen() {
 
       // Generate reduction recommendations
       const topApps = Object.entries(appUsage)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
         .slice(0, 3);
 
       topApps.forEach(([app, hours]) => {
-        if (hours > 10) {
-          const currentCost = hours * 187.5;
+        if ((hours as number) > 10) {
+          const currentCost = (hours as number) * 187.5;
           const potentialSaving = currentCost * 0.3;
 
           recommendations.push({
@@ -240,7 +240,7 @@ export default function ReclaimScreen() {
     }
 
     return (
-      <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
+      <View style={styles.tabContent}>
         {recommendations.length > 0 && (
           <View style={styles.recommendationSection}>
             <Text style={styles.sectionTitle}>Switch & Save</Text>
@@ -379,13 +379,13 @@ export default function ReclaimScreen() {
             Even reducing your top app by 30 minutes daily can save you ₹2,800+ per month!
           </Text>
         </View>
-      </ScrollView>
+      </View>
     );
   };
 
   return (
     <GradientBackground>
-      <View style={styles.container}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Lightbulb size={32} color={colors.warning} />
           <Text style={styles.title}>Reclaim Your Attention</Text>
@@ -419,7 +419,7 @@ export default function ReclaimScreen() {
         <View style={styles.content}>
           {activeTab === 'recommendations' ? renderRecommendations() : <LessonsContent />}
         </View>
-      </View>
+      </ScrollView>
     </GradientBackground>
   );
 }

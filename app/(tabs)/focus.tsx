@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { GradientBackground } from '@/components/GradientBackground';
 import { FocusActivityManager } from '@/components/FocusActivityManager';
 import { GoalsManager } from '@/components/GoalsManager';
@@ -14,7 +14,7 @@ export default function FocusScreen() {
 
   return (
     <GradientBackground>
-      <View style={styles.container}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Brain size={32} color={colors.success} />
           <Text style={styles.title}>Focus & Goals</Text>
@@ -52,7 +52,7 @@ export default function FocusScreen() {
             <GoalsManager />
           )}
         </View>
-      </View>
+      </ScrollView>
     </GradientBackground>
   );
 }

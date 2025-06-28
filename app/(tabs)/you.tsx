@@ -228,7 +228,7 @@ export default function YouScreen() {
   }
 
   const renderProfileContent = () => (
-    <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
+    <View style={styles.tabContent}>
       <View style={styles.profileHeader}>
         <View style={styles.profileIcon}>
           <User size={32} color={colors.primary} />
@@ -365,12 +365,12 @@ export default function YouScreen() {
           Your attention is valuable. Spend it wisely.
         </Text>
       </View>
-    </ScrollView>
+    </View>
   );
 
   return (
     <GradientBackground>
-      <View style={styles.container}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <User size={32} color={colors.primary} />
           <Text style={styles.title}>You</Text>
@@ -402,7 +402,7 @@ export default function YouScreen() {
         </View>
 
         {activeTab === 'profile' ? renderProfileContent() : <WalletOverview showAchievements={true} />}
-      </View>
+      </ScrollView>
 
       {/* Sign Out Confirmation Modal */}
       <Modal
